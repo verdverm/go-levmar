@@ -3,7 +3,7 @@
 #include <math.h>
 #include <float.h>
 
-#include "/home/tony/src/levmar-2.6/levmar.h"
+#include "levmar-2.6/levmar.h"
 
 void func(double *p, double *x, int m, int n, void *data)
 {

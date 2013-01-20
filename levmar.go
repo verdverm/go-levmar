@@ -1,7 +1,7 @@
 package problems
 
 /*
-#cgo LDFLAGS: -L/usr/lib  -L/home/tony/src/levmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
+#cgo LDFLAGS: -L/usr/lib  -Llevmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
 
 void func(double *p, double *x, int m, int n, void *data);
 void jacfunc(double *p, double *x, int m, int n, void *data);
@@ -11,8 +11,8 @@ void levmar(double* ygiven, double* p, const int n, const int m, void* e );
 import "C"
 
 import (
-	expr "damd/go-symexpr"
-	"math"
+	expr "github.com/verdverm/go-symexpr"
+	. "damd/problems"
 	"reflect"
 	"unsafe"
 )
@@ -26,65 +26,6 @@ type callback_data struct {
 	Task  ExprProblemType
 }
 
-func RegressExpr(E expr.Expr, P *ExprProblem) (R *ExprReport) {
-
-	c := make([]float64, 0)
-	c, eqn := E.ConvertToConstants(c)
-
-	var coeff []float64
-	if len(c) > 0 {
-		coeff = LevmarExpr(eqn, P.SearchVar, P.SearchType, c, P.Train, P.Test)
-	}
-
-	R = new(ExprReport)
-	R.expr = eqn /*.ConvertToConstantFs(coeff)*/
-	R.coeff = coeff
-	_, s2, serr := scoreExpr(E, P, coeff)
-	R.testScore = s2
-	R.testError = serr
-	R.expr.CalcExprStats(0)
-
-	return R
-}
-
-func scoreExpr(e expr.Expr, P *ExprProblem, coeff []float64) (int, int, float64) {
-	score := 0
-	score2 := 0
-	error := 0.0
-
-	for _, PS := range P.Test {
-		for _, p := range PS.Points() {
-			y := p.Depnd(P.SearchVar)
-			var out float64
-			if P.SearchType == ExprBenchmark {
-				out = e.Eval(0, p.Indeps(), coeff, PS.SysVals())
-			} else if P.SearchType == ExprDiffeq {
-				out = e.Eval(p.Indep(0), p.Indeps()[1:], coeff, PS.SysVals())
-			}
-
-			diff := math.Abs(out - y)
-			if math.IsNaN(diff) {
-				continue
-			}
-			if diff < P.HitRatio {
-				score++
-			}
-			err := math.Abs(diff / y)
-			if math.IsNaN(err) || math.IsInf(err, 0) {
-				err = diff
-			}
-			error += err
-			if err < P.HitRatio {
-				score2++
-			}
-		}
-	}
-
-	eAve := error / (float64(len(P.Test)) * float64(P.Test[0].NumPoints()))
-	// eAve := error / float64(P.Test.NumPoints())
-
-	return score, score2, eAve
-}
 
 func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float64, train, test []*PointSet) []float64 {
 
@@ -218,3 +159,5 @@ func Callback_jacfunc(p, x *C.double, e unsafe.Pointer) {
 	}
 
 }
+
+
