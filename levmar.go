@@ -3,16 +3,14 @@ package problems
 /*
 #cgo LDFLAGS: -L/usr/lib  -Llevmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
 
-void func(double *p, double *x, int m, int n, void *data);
-void jacfunc(double *p, double *x, int m, int n, void *data);
-void levmar(double* ygiven, double* p, const int n, const int m, void* e );
+#include "levmar_h.h"
 
 */
 import "C"
 
 import (
 	expr "github.com/verdverm/go-symexpr"
-	. "damd/problems"
+	. "pge1/problems"
 	"reflect"
 	"unsafe"
 )
@@ -22,15 +20,16 @@ type callback_data struct {
 	Test  []*PointSet
 	E     expr.Expr
 	J     []expr.Expr
+	S     [][]int
 	Coeff []float64
 	Task  ExprProblemType
 }
-
 
 func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float64, train, test []*PointSet) []float64 {
 
 	ps := train[0].NumPoints()
 	PS := len(train) * ps
+
 
 	c := make([]float64, len(guess))
 	var cd callback_data
@@ -41,7 +40,9 @@ func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float6
 	cd.Task = task
 	cd.J = make([]expr.Expr, len(guess))
 	for i, _ := range cd.J {
-		cd.J[i] = e.DerivConst(i) /*.Simplify(SimpRules{true,true})*/
+		deriv := e.DerivConst(i)
+		// simp := deriv.Simplify(expr.DefaultRules())
+		cd.J[i] = deriv
 	}
 
 	// c/levmar inputs
@@ -62,7 +63,8 @@ func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float6
 	ni := C.int(PS)
 	mi := C.int(len(c))
 
-	C.levmar(ya, ca, ni, mi, unsafe.Pointer(&cd))
+
+	C.levmar(ya, ca, mi, ni, unsafe.Pointer(&cd))
 
 	for i, _ := range coeff {
 		c[i] = float64(coeff[i])
@@ -158,6 +160,82 @@ func Callback_jacfunc(p, x *C.double, e unsafe.Pointer) {
 		}
 	}
 
+}
+
+
+
+
+func LevmarStack(e expr.Expr, searchDim int, task ExprProblemType, guess []float64, train, test []*PointSet) []float64 {
+
+	ps := train[0].NumPoints()
+	PS := len(train) * ps
+	x_dim := train[0].NumDim()
+	x_len := PS
+	x_tot := PS * x_dim
+
+	// c/levmar inputs
+	coeff := make([]C.double, len(guess))
+	for i, g := range guess {
+		coeff[i] = C.double(g)
+	}
+
+	x := make([]C.double, x_tot)
+	y := make([]C.double, PS)
+	for i1, T := range train {
+		for i2, p := range T.Points() {
+			i := i1*ps + i2
+			y[i] = C.double(p.Depnd(searchDim))
+			for i3, x_p := range p.Indeps() {
+				j := i1*x_len + i2*T.NumPoints() + i3
+				x[j] = C.double(x_p)
+			}
+		}
+	}
+	ya := (*C.double)(unsafe.Pointer(&y[0]))
+	ca := (*C.double)(unsafe.Pointer(&coeff[0]))
+	ni := C.int(PS)
+	mi := C.int(len(guess))
+
+	var sd *C.StackData
+	sd.x_len = C.int(x_tot)
+	sd.x_dim = C.int(x_dim)
+	sd.d_len = C.int(mi)
+	sd.x_data = (*C.double)(unsafe.Pointer(&x[0]))
+
+
+	serial := make([]int,0)
+	serial = e.StackSerial(serial)
+	sd.expr.s_len = C.int(len(serial))
+	c_serial := make([]C.int,len(serial))
+	for i, I := range serial {
+		c_serial[i] = C.int(I)
+	}
+	sd.expr.serial = (*C.int)(unsafe.Pointer(&c_serial[0]))
+
+	derivs := make([]C.StackExpr,len(guess))
+	for i, _ := range guess {
+		deriv := e.DerivConst(i)
+		serial := make([]int,0)
+		serial = deriv.StackSerial(serial)
+		derivs[i].s_len = C.int(len(serial))
+		c_serial := make([]C.int,len(serial))
+		for i, I := range serial {
+			c_serial[i] = C.int(I)
+		}
+		derivs[i].serial = (*C.int)(unsafe.Pointer(&c_serial[0]))
+
+	}
+	sd.derivs = (*C.StackExpr)(unsafe.Pointer(&derivs[0]))
+
+
+	C.stack_levmar(ya, ca, mi, ni, unsafe.Pointer(&sd))
+
+
+	c := make([]float64, len(guess))
+	for i, _ := range coeff {
+		c[i] = float64(coeff[i])
+	}
+	return c
 }
 
 
