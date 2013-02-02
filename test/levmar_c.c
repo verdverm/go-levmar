@@ -3,7 +3,7 @@
 #include <math.h>
 #include <float.h>
 
-#include "levmar-2.6/levmar.h"
+#include "../levmar-2.6/levmar.h"
 #include "levmar_h.h"
 
 typedef struct {
@@ -16,14 +16,14 @@ typedef struct {
 	int pos;
 } I_Stack;
 
-double stack_eval(double *c_in, double *x_in, I_Stack *i_stack, D_Stack *d_stack, StackExpr expr );
+
 
 void func(double *p, double *x, int m, int n, void *data) {
-  Callback_func(p,x,data);
+  // Callback_func(p,x,data);
 }
 
 void jacfunc(double *p, double *jac, int m, int n, void *data) {
-  Callback_jacfunc(p,jac,data);
+  // Callback_jacfunc(p,jac,data);
 }
 
 void levmar( double* ygiven, double* p, const int m, const int n, void* data ) {
@@ -38,6 +38,9 @@ void levmar( double* ygiven, double* p, const int m, const int n, void* data ) {
   //   dlevmar_dif(f1, p, x, m, n, 1000, opts, info, NULL, NULL, data); // without Jacobian
 }
 
+
+
+double stack_eval(double *c_in, double *x_in, I_Stack *i_stack, D_Stack *d_stack, StackExpr expr );
 
 void stack_func( double *p, double *x, int m, int n, void *data) {
 	StackData *sdata = (StackData*)data;
