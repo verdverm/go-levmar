@@ -1,7 +1,6 @@
 # DO NOT DELETE THE BLANK LINE AFTER THIS!
 SRCS = \
-        levmar_c.c \
-		stack.c \
+		../stack.c \
         test.c
 
 OBJS = $(SRCS:.c=.o)
@@ -15,6 +14,8 @@ main: $(OBJS)
 
 -include $(DEPS)
 
-.PHONY: clean
+.PHONY: clean distclean
 clean:
-		rm -f test *.o *.d
+		rm -f test *.o *.d ../*.o ../*.d
+distclean:
+		rm -f *.o *.d ../*.o ../*.d

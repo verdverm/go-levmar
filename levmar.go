@@ -4,17 +4,24 @@ package problems
 #cgo LDFLAGS: -L/usr/lib  -Llevmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
 
 #include "levmar_h.h"
+#include "stack.h"
 
 */
 import "C"
 
 import (
-	"fmt"
+	// "fmt"
 	expr "github.com/verdverm/go-symexpr"
 	. "pge1/problems"
 	"reflect"
 	"unsafe"
 )
+
+type C_double C.double
+
+func MakeCDouble(f float64) C_double {
+	return C_double(C.double(f))
+}
 
 type callback_data struct {
 	Train []*PointSet
@@ -63,7 +70,8 @@ func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float6
 	ni := C.int(PS)
 	mi := C.int(len(c))
 
-	C.levmar(ya, ca, mi, ni, unsafe.Pointer(&cd))
+	// C.levmar_dif(ya, ca, mi, ni, unsafe.Pointer(&cd))
+	C.levmar_der(ya, ca, mi, ni, unsafe.Pointer(&cd))
 
 	for i, _ := range coeff {
 		c[i] = float64(coeff[i])
@@ -161,73 +169,74 @@ func Callback_jacfunc(p, x *C.double, e unsafe.Pointer) {
 
 }
 
-func LevmarStack(e expr.Expr, searchDim int, task ExprProblemType, guess []float64, train, test []*PointSet) []float64 {
+func StackLevmarExpr(e expr.Expr, x_dims int, coeff []float64, c_ygiven, c_input []C_double) []float64 {
 
-	ps := train[0].NumPoints()
-	PS := len(train) * ps
-	x_dim := train[0].NumDim()
-	x_len := PS
-	x_tot := PS * x_dim
+	// fmt.Printf("Entering Stack Levmar: \n")
 
-	// c/levmar inputs
-	coeff := make([]C.double, len(guess))
-	for i, g := range guess {
-		coeff[i] = C.double(g)
+	c_coeff := make([]C.double, len(coeff))
+	for i, c := range coeff {
+		c_coeff[i] = C.double(c)
 	}
+	// c_ygiven := make([]C.double, len(ygiven))
+	// for i, c := range ygiven {
+	// 	c_ygiven[i] = C.double(c)
+	// }
+	// c_input := make([]C.double, len(input))
+	// for i, c := range input {
+	// 	c_input[i] = C.double(c)
+	// }
 
-	x := make([]C.double, x_tot)
-	y := make([]C.double, PS)
-	for i1, T := range train {
-		for i2, p := range T.Points() {
-			i := i1*ps + i2
-			y[i] = C.double(p.Depnd(searchDim))
-			for i3, x_p := range p.Indeps() {
-				j := i1*x_len + i2*T.NumPoints() + i3
-				x[j] = C.double(x_p)
-			}
-		}
-	}
-	ya := (*C.double)(unsafe.Pointer(&y[0]))
-	ca := (*C.double)(unsafe.Pointer(&coeff[0]))
-	ni := C.int(PS)
-	mi := C.int(len(guess))
+	cp := (*C.double)(unsafe.Pointer(&c_coeff[0]))
+	mi := C.int(len(coeff))
+	yp := (*C.double)(unsafe.Pointer(&c_ygiven[0]))
+	ni := C.int(len(c_ygiven))
 
 	var sd *C.StackData
-	sd.x_len = C.int(x_tot)
-	sd.x_dim = C.int(x_dim)
-	sd.d_len = C.int(mi)
-	sd.x_data = (*C.double)(unsafe.Pointer(&x[0]))
+	sd = new(C.StackData)
+	// fmt.Printf("x_len: %d   x_dim: %d\n", len(input), x_dims)
+	sd.x_len = C.int(len(c_input))
+	sd.x_dim = C.int(x_dims)
+	sd.x_data = (*C.double)(unsafe.Pointer(&c_input[0]))
 
 	serial := make([]int, 0)
 	serial = e.StackSerial(serial)
-	fmt.Printf("StackSerial: %v\n", serial)
-	sd.expr.s_len = C.int(len(serial))
+	// fmt.Printf("StackSerial: %v\n", serial)
 	c_serial := make([]C.int, len(serial))
 	for i, I := range serial {
 		c_serial[i] = C.int(I)
 	}
 	sd.expr.serial = (*C.int)(unsafe.Pointer(&c_serial[0]))
+	sd.expr.s_len = C.int(len(serial))
 
-	derivs := make([]C.StackExpr, len(guess))
-	for i, _ := range guess {
+	// fmt.Printf("GOT HERE: %v\n", serial)
+
+	derivs := make([]C.StackExpr, len(coeff))
+	for i, _ := range coeff {
 		deriv := e.DerivConst(i)
-		serial := make([]int, 0)
-		serial = deriv.StackSerial(serial)
-		derivs[i].s_len = C.int(len(serial))
-		c_serial := make([]C.int, len(serial))
-		for i, I := range serial {
-			c_serial[i] = C.int(I)
+		dserial := make([]int, 0)
+		dserial = deriv.StackSerial(dserial)
+		d_serial := make([]C.int, len(dserial))
+		for i, I := range dserial {
+			d_serial[i] = C.int(I)
 		}
-		derivs[i].serial = (*C.int)(unsafe.Pointer(&c_serial[0]))
+		derivs[i].serial = (*C.int)(unsafe.Pointer(&d_serial[0]))
+		derivs[i].s_len = C.int(len(d_serial))
 
 	}
 	sd.derivs = (*C.StackExpr)(unsafe.Pointer(&derivs[0]))
+	sd.d_len = C.int(mi)
 
-	C.stack_levmar(ya, ca, mi, ni, unsafe.Pointer(&sd))
+	// fmt.Printf("Going into stack_levmar_dif\n")
+	C.stack_levmar_dif(yp, cp, mi, ni, unsafe.Pointer(sd))
+	// C.stack_levmar_der(yp, cp, mi, ni, unsafe.Pointer(sd))
+	// fmt.Printf("Returned from stack_levmar_dif\n")
 
-	c := make([]float64, len(guess))
-	for i, _ := range coeff {
-		c[i] = float64(coeff[i])
+	c := make([]float64, len(c_coeff))
+	for i, _ := range c_coeff {
+		c[i] = float64(c_coeff[i])
 	}
+	// fmt.Printf("C0: %f\n", c[0])
 	return c
 }
+
+// ./pge1 -pcfg=prob/bench/Koza_1.cfg -peel=3 -iter=100 -init=method1 -grow=method1
