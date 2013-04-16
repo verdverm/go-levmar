@@ -11,8 +11,8 @@ import "C"
 
 import (
 	// "fmt"
+	. "github.com/verdverm/go-pge/problems"
 	expr "github.com/verdverm/go-symexpr"
-	. "pge1/problems"
 	"reflect"
 	"unsafe"
 )
