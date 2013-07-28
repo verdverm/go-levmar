@@ -45,6 +45,9 @@ ENDIF(0)
 #ADD_DEFINITIONS(-DLINSOLVERS_RETAIN_MEMORY) # do not free memory between linear solvers calls
 REMOVE_DEFINITIONS(-DLINSOLVERS_RETAIN_MEMORY) # free memory between calls
 
+
+
+
 ########################## NO CHANGES BEYOND THIS POINT ##########################
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/levmar.h.in ${CMAKE_CURRENT_SOURCE_DIR}/levmar.h)
@@ -65,33 +68,3 @@ ADD_LIBRARY(levmar STATIC
   levmar.h misc.h compiler.h
 )
 
-# demo program
-IF(BUILD_DEMO)
-  SET(LIBS levmar)
-
-  LINK_DIRECTORIES(${CMAKE_BINARY_DIR}) # location of the levmar library
-  LINK_DIRECTORIES(${LAPACKBLAS_DIR})
-
-# libraries the demo depends on
-  IF(HAVE_PLASMA)
-    LINK_DIRECTORIES(${PLASMA_DIR}/lib)
-    SET(LIBS ${LIBS} ${PLASMA_LIB_NAMES})
-  ENDIF(HAVE_PLASMA)
-
-  IF(HAVE_LAPACK)
-    IF(NEED_F2C)
-      SET(LIBS ${LIBS} ${LAPACKBLAS_LIB_NAMES} ${F2C_LIB_NAME})
-    ELSE(NEED_F2C)
-      SET(LIBS ${LIBS} ${LAPACKBLAS_LIB_NAMES})
-    ENDIF(NEED_F2C)
-  ENDIF(HAVE_LAPACK)
-
-  ADD_EXECUTABLE(lmdemo lmdemo.c levmar.h)
-  TARGET_LINK_LIBRARIES(lmdemo ${LIBS})
-  MESSAGE(STATUS "lmdemo will be linked against ${LIBS}")
-
-# make sure that the library is built before the demo
-  ADD_DEPENDENCIES(lmdemo levmar)
-ENDIF(BUILD_DEMO)
-
-#SUBDIRS(matlab)

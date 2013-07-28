@@ -7,7 +7,8 @@ OBJS = $(SRCS:.c=.o)
 DEPS = $(SRCS:.c=.d)
 
 CFLAGS = -MMD -ggdb -Wall
-LDFLAGS = -L/usr/lib  -L../levmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
+# LDFLAGS = -L/usr/lib  -L../levmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
+LDFLAGS = /home/tony/gocode/src/github.com/verdverm/go-levmar/levmar-2.6/liblevmar.a -llapack -lblas -lf2c -lm
 
 main: $(OBJS)
 		gcc -Wall -ggdb $(OBJS) -o test $(LDFLAGS)

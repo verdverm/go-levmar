@@ -111,19 +111,6 @@ levmar/fast:
 	$(MAKE) -f CMakeFiles/levmar.dir/build.make CMakeFiles/levmar.dir/build
 .PHONY : levmar/fast
 
-#=============================================================================
-# Target rules for targets named lmdemo
-
-# Build rule for target.
-lmdemo: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 lmdemo
-.PHONY : lmdemo
-
-# fast build rule for target.
-lmdemo/fast:
-	$(MAKE) -f CMakeFiles/lmdemo.dir/build.make CMakeFiles/lmdemo.dir/build
-.PHONY : lmdemo/fast
-
 Axb.o: Axb.c.o
 .PHONY : Axb.o
 
@@ -244,30 +231,6 @@ lmbleic.c.s:
 	$(MAKE) -f CMakeFiles/levmar.dir/build.make CMakeFiles/levmar.dir/lmbleic.c.s
 .PHONY : lmbleic.c.s
 
-lmdemo.o: lmdemo.c.o
-.PHONY : lmdemo.o
-
-# target to build an object file
-lmdemo.c.o:
-	$(MAKE) -f CMakeFiles/lmdemo.dir/build.make CMakeFiles/lmdemo.dir/lmdemo.c.o
-.PHONY : lmdemo.c.o
-
-lmdemo.i: lmdemo.c.i
-.PHONY : lmdemo.i
-
-# target to preprocess a source file
-lmdemo.c.i:
-	$(MAKE) -f CMakeFiles/lmdemo.dir/build.make CMakeFiles/lmdemo.dir/lmdemo.c.i
-.PHONY : lmdemo.c.i
-
-lmdemo.s: lmdemo.c.s
-.PHONY : lmdemo.s
-
-# target to generate assembly for a file
-lmdemo.c.s:
-	$(MAKE) -f CMakeFiles/lmdemo.dir/build.make CMakeFiles/lmdemo.dir/lmdemo.c.s
-.PHONY : lmdemo.c.s
-
 lmlec.o: lmlec.c.o
 .PHONY : lmlec.o
 
@@ -324,7 +287,6 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... levmar"
-	@echo "... lmdemo"
 	@echo "... rebuild_cache"
 	@echo "... Axb.o"
 	@echo "... Axb.i"
@@ -341,9 +303,6 @@ help:
 	@echo "... lmbleic.o"
 	@echo "... lmbleic.i"
 	@echo "... lmbleic.s"
-	@echo "... lmdemo.o"
-	@echo "... lmdemo.i"
-	@echo "... lmdemo.s"
 	@echo "... lmlec.o"
 	@echo "... lmlec.i"
 	@echo "... lmlec.s"

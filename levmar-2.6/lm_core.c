@@ -305,15 +305,15 @@ if(!(k%100)){
        * slower than LDLt; LDLt offers a good tradeoff between robustness and speed
        */
 
-      issolved=AX_EQ_B_BK(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_BK;
-      //issolved=AX_EQ_B_LU(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_LU;
+      // issolved=AX_EQ_B_BK(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_BK;
+      // issolved=AX_EQ_B_LU(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_LU;
       //issolved=AX_EQ_B_CHOL(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_CHOL;
 #ifdef HAVE_PLASMA
       //issolved=AX_EQ_B_PLASMA_CHOL(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_PLASMA_CHOL;
 #endif
-      //issolved=AX_EQ_B_QR(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_QR;
-      //issolved=AX_EQ_B_QRLS(jacTjac, jacTe, Dp, m, m); ++nlss; linsolver=(int (*)(LM_REAL *A, LM_REAL *B, LM_REAL *x, int m))AX_EQ_B_QRLS;
-      //issolved=AX_EQ_B_SVD(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_SVD;
+      // issolved=AX_EQ_B_QR(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_QR;
+      // issolved=AX_EQ_B_QRLS(jacTjac, jacTe, Dp, m, m); ++nlss; linsolver=(int (*)(LM_REAL *A, LM_REAL *B, LM_REAL *x, int m))AX_EQ_B_QRLS;
+      issolved=AX_EQ_B_SVD(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_SVD;
 
 #else
       /* use the LU included with levmar */
@@ -701,15 +701,15 @@ if(!(k%100)){
      * slower than LDLt; LDLt offers a good tradeoff between robustness and speed
      */
 
-    issolved=AX_EQ_B_BK(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_BK;
+    // issolved=AX_EQ_B_BK(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_BK;
     //issolved=AX_EQ_B_LU(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_LU;
     //issolved=AX_EQ_B_CHOL(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_CHOL;
 #ifdef HAVE_PLASMA
     //issolved=AX_EQ_B_PLASMA_CHOL(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_PLASMA_CHOL;
 #endif
-    //issolved=AX_EQ_B_QR(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_QR;
+    // issolved=AX_EQ_B_QR(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_QR;
     //issolved=AX_EQ_B_QRLS(jacTjac, jacTe, Dp, m, m); ++nlss; linsolver=(int (*)(LM_REAL *A, LM_REAL *B, LM_REAL *x, int m))AX_EQ_B_QRLS;
-    //issolved=AX_EQ_B_SVD(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_SVD;
+    issolved=AX_EQ_B_SVD(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_SVD;
 #else
     /* use the LU included with levmar */
     issolved=AX_EQ_B_LU(jacTjac, jacTe, Dp, m); ++nlss; linsolver=AX_EQ_B_LU;
