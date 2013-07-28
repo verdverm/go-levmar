@@ -7,8 +7,7 @@
 CC=icc #-w1 # warnings on
 CXX=icpc
 CONFIGFLAGS=#-ULINSOLVERS_RETAIN_MEMORY
-ARCHFLAGS=-march=pentium4 -mcpu=pentium4
-CFLAGS=$(CONFIGFLAGS) $(ARCHFLAGS) -O3 -tpp7 -xW -ip -ipo -unroll #-g
+CFLAGS=$(CONFIGFLAGS) -O2 -tpp7 -xW -ip -ipo -unroll -lm #-g
 LAPACKLIBS_PATH=/usr/local/lib # WHEN USING LAPACK, CHANGE THIS TO WHERE YOUR COMPILED LIBS ARE!
 LDFLAGS=-L$(LAPACKLIBS_PATH) -L.
 LIBOBJS=lm.o Axb.o misc.o lmlec.o lmbc.o lmblec.o lmbleic.o

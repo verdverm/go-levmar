@@ -1,18 +1,17 @@
 package problems
 
-/*
-#cgo LDFLAGS: -L/usr/lib  -Llevmar-2.6 -llevmar -llapack -lblas -lf2c  -lm
+// #cgo LDFLAGS: -L/usr/lib  -L/home/tony/gocode/src/github.com/verdverm/go-levmar/levmar-2.6 -llevmar -llapack -lblas -lf2c -lm
 
-#include "levmar_h.h"
-#include "stack.h"
-
-*/
+// #cgo CFLAGS: -ggdb -fPIC -m64 -pthread
+// #cgo LDFLAGS: /home/tony/gocode/src/github.com/verdverm/go-levmar/levmar-2.6/liblevmar.a -llapack -lblas -lf2c -lm
+// #include "levmar_h.h"
+// #include "stack.h"
 import "C"
 
 import (
 	// "fmt"
+	. "github.com/verdverm/go-pge/problems"
 	expr "github.com/verdverm/go-symexpr"
-	. "pge1/problems"
 	"reflect"
 	"unsafe"
 )
@@ -239,4 +238,8 @@ func StackLevmarExpr(e expr.Expr, x_dims int, coeff []float64, c_ygiven, c_input
 	return c
 }
 
-// ./pge1 -pcfg=prob/bench/Koza_1.cfg -peel=3 -iter=100 -init=method1 -grow=method1
+// func LevmarExpr(e expr.Expr, searchDim int, task ExprProblemType, guess []float64, train, test []*PointSet) []float64 {
+
+func IronLevmarExpr() {
+
+}

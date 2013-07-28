@@ -15,7 +15,7 @@ ENDIF(HAVE_PLASMA)
 SET(LINSOLVERS_RETAIN_MEMORY 1 CACHE BOOL "Should linear solvers retain working memory between calls? (non-reentrant!)")
 SET(LM_DBL_PREC 1 CACHE BOOL "Build double precision routines?")
 SET(LM_SNGL_PREC 1 CACHE BOOL "Build single precision routines?")
-OPTION(BUILD_DEMO "Build demo program?" TRUE)
+OPTION(BUILD_DEMO "Build demo program?" FALSE)
 
 # actual names for the lapack/blas/f2c libraries
 SET(LAPACKBLAS_LIB_NAMES "lapack;blas" CACHE STRING "The name of the lapack & blas libraries")
@@ -43,7 +43,7 @@ ENDIF(0)
 
 # compiler flags
 #ADD_DEFINITIONS(-DLINSOLVERS_RETAIN_MEMORY) # do not free memory between linear solvers calls
-#REMOVE_DEFINITIONS(-DLINSOLVERS_RETAIN_MEMORY) # free memory between calls
+REMOVE_DEFINITIONS(-DLINSOLVERS_RETAIN_MEMORY) # free memory between calls
 
 ########################## NO CHANGES BEYOND THIS POINT ##########################
 
@@ -60,7 +60,7 @@ IF(HAVE_PLASMA)
 ENDIF(HAVE_PLASMA)
 
 # levmar library source files
-ADD_LIBRARY(levmar SHARED
+ADD_LIBRARY(levmar STATIC
   lm.c Axb.c misc.c lmlec.c lmbc.c lmblec.c lmbleic.c
   levmar.h misc.h compiler.h
 )
