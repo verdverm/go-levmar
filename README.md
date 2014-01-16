@@ -13,7 +13,8 @@ depends on
 Building
 --------
 
-- sudo apt-get install cmake liblapack3 liblapack-dev libblas3 libblas-dev f2c 
+- sudo apt-get install g++ cmake liblapack3 liblapack-dev libblas3 libblas-dev f2c 
+- cd levmar-2.6
 - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINSOLVERS_RETAIN_MEMORY=0 .
 - make
 
