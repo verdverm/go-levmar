@@ -13,7 +13,7 @@ depends on
 Building
 --------
 
-- sudo apt-get install liblapack3 liblapack-dev libblas3 libblas-dev f2c 
+- sudo apt-get install cmake liblapack3 liblapack-dev libblas3 libblas-dev f2c 
 - cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLINSOLVERS_RETAIN_MEMORY=0 .
 - make
 
